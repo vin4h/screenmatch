@@ -5,9 +5,7 @@ import com.vin4h.screenmatch.model.DadosTemporada;
 import com.vin4h.screenmatch.service.ConsumoApi;
 import com.vin4h.screenmatch.service.ConverteDados;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class Principal {
     private final String BASE_URL = "https://www.omdbapi.com/?t=";
@@ -34,9 +32,22 @@ public class Principal {
             listaDadosConvertidoTemporada.add(conversor.obterDados(jsonTemporada, DadosTemporada.class));
         }
 
-//        listaDadosConvertidoTemporada.forEach(System.out::println);
 
+//        listaDadosConvertidoTemporada.forEach(t -> t.episodios().forEach(e -> System.out.println(e.titulo())));
 
-        listaDadosConvertidoTemporada.forEach(t -> t.episodios().forEach(e -> System.out.println(e.titulo())));
+        Map<Integer, Double> melhoresEpisodiosPorTemporada = new TreeMap<>();
+
+        listaDadosConvertidoTemporada.forEach(dadosTemporada -> {
+            dadosTemporada.episodios().stream()
+                    .filter(episodio -> !episodio.avaliacao().equalsIgnoreCase("N/A"))
+                    .mapToDouble(episodio -> Double.parseDouble(episodio.avaliacao()))
+                    .max()
+                    .ifPresent(melhorNota ->
+                            melhoresEpisodiosPorTemporada.put(dadosTemporada.numero(), melhorNota)
+                    );
+        });
+
+        System.out.println(melhoresEpisodiosPorTemporada);
+
     }
 }
