@@ -2,10 +2,12 @@ package com.vin4h.screenmatch.principal;
 
 import com.vin4h.screenmatch.model.DadosSerie;
 import com.vin4h.screenmatch.model.DadosTemporada;
+import com.vin4h.screenmatch.model.Episodio;
 import com.vin4h.screenmatch.service.ConsumoApi;
 import com.vin4h.screenmatch.service.ConverteDados;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Principal {
     private final String BASE_URL = "https://www.omdbapi.com/?t=";
@@ -32,9 +34,6 @@ public class Principal {
             listaDadosConvertidoTemporada.add(conversor.obterDados(jsonTemporada, DadosTemporada.class));
         }
 
-
-//        listaDadosConvertidoTemporada.forEach(t -> t.episodios().forEach(e -> System.out.println(e.titulo())));
-
         Map<Integer, Double> melhoresEpisodiosPorTemporada = new TreeMap<>();
 
         listaDadosConvertidoTemporada.forEach(dadosTemporada -> {
@@ -47,7 +46,11 @@ public class Principal {
                     );
         });
 
-        System.out.println(melhoresEpisodiosPorTemporada);
+
+        List<Episodio> episodios = listaDadosConvertidoTemporada.stream()
+                .flatMap(t -> t.episodios().stream()
+                        .map(d -> new Episodio(t.numero(), d))
+                        .collect((Collectors.toList())));
 
     }
 }
